@@ -54,12 +54,68 @@ fn part1(data: Vec<Vec<usize>>) -> Result<usize> {
 
     Ok(safe)
 }
+fn part2(data: Vec<Vec<usize>>) -> Result<usize> {
+    let mut safe = 0;
+
+    let is_increasing = |arr: &Vec<usize>| arr.windows(2).all(|w| w[0] < w[1]);
+    let is_decreasing = |arr: &Vec<usize>| arr.windows(2).all(|w| w[0] > w[1]);
+
+    let is_in_range = |arr: &Vec<usize>| {
+        arr.windows(2).all(|w| {
+            let diff = w[0] - w[1];
+            (SAFE_RANGE).contains(&diff)
+        })
+    };
+
+    let check = |row: Vec<usize>| {
+        let is_safe = if is_increasing(&row) {
+            let row: Vec<_> = row.into_iter().rev().collect();
+            is_in_range(&row)
+        } else if is_decreasing(&row) {
+            is_in_range(&row)
+        } else {
+            false
+        };
+
+        is_safe
+    };
+
+    for row in data {
+        let arr = row.clone();
+        let is_safe = check(arr);
+
+        if is_safe {
+            safe += 1;
+        } else {
+            let mut is_damp_safe = false;
+
+            for i in 0..row.len() {
+                let mut arr = row.clone();
+                arr.remove(i);
+
+                if check(arr) {
+                    is_damp_safe = true;
+                    break;
+                }
+            }
+
+            if is_damp_safe {
+                safe += 1;
+            }
+        }
+    }
+
+    Ok(safe)
+}
 
 fn main() -> Result<()> {
     let data = get_data()?;
 
-    let safe = part1(data)?;
+    let safe = part1(data.clone())?;
     println!("Part1: number of safe reports: {}", safe);
+
+    let safe = part2(data)?;
+    println!("Part2: number of safe reports: {}", safe);
 
     Ok(())
 }
