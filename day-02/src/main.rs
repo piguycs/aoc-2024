@@ -68,16 +68,14 @@ fn part2(data: Vec<Vec<usize>>) -> Result<usize> {
     };
 
     let check = |row: Vec<usize>| {
-        let is_safe = if is_increasing(&row) {
+        if is_increasing(&row) {
             let row: Vec<_> = row.into_iter().rev().collect();
             is_in_range(&row)
         } else if is_decreasing(&row) {
             is_in_range(&row)
         } else {
             false
-        };
-
-        is_safe
+        }
     };
 
     for row in data {
