@@ -14,9 +14,9 @@ struct Data {
 }
 
 impl Data {
-    fn at(&self, row: usize, col: usize) -> Option<char> {
-        if row < self.num_lines && col < self.num_chars {
-            Some(self.text.as_bytes()[row * self.num_chars + col] as char)
+    fn at(&self, x: usize, y: usize) -> Option<char> {
+        if x < self.num_lines && y < self.num_chars {
+            Some(self.text.as_bytes()[x * self.num_chars + y] as char)
         } else {
             None
         }
@@ -79,10 +79,52 @@ fn part1(data: &Data) -> usize {
     count
 }
 
+fn part2(data: &Data) -> usize {
+    let mut count = 0;
+
+    let width = data.num_chars;
+    let height = data.num_lines;
+
+    for x in 1..width - 1 {
+        for y in 1..height - 1 {
+            let edges = [
+                ((x - 1, y - 1), (x + 1, y + 1)),
+                ((x - 1, y + 1), (x + 1, y - 1)),
+            ];
+
+            let ((x1a, y1a), (x2a, y2a)) = edges[0];
+            let ((x1b, y1b), (x2b, y2b)) = edges[1];
+
+            let line_1 = (data.at(x1a, y1a), data.at(x, y), data.at(x2a, y2a));
+            let line_2 = (data.at(x1b, y1b), data.at(x, y), data.at(x2b, y2b));
+
+            let match_1 = matches!(
+                line_1,
+                (Some('M'), Some('A'), Some('S')) | (Some('S'), Some('A'), Some('M'))
+            );
+
+            let match_2 = matches!(
+                line_2,
+                (Some('M'), Some('A'), Some('S')) | (Some('S'), Some('A'), Some('M'))
+            );
+
+            if match_1 && match_2 {
+                count += 1;
+            }
+        }
+    }
+
+    count
+}
+
 fn main() -> Result<()> {
     let data = get_data(INPUT)?;
     let num = part1(&data);
     println!("Part 1: {}", num);
+
+    let data = get_data(INPUT)?;
+    let num = part2(&data);
+    println!("Part 2: {}", num);
 
     Ok(())
 }
