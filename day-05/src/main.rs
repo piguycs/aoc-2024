@@ -19,13 +19,7 @@ impl Rules {
 
         let failures = rules
             .iter()
-            .filter_map(|rule| {
-                if a == rule.after && b == rule.before {
-                    Some(())
-                } else {
-                    None
-                }
-            })
+            .filter(|rule| a == rule.after && b == rule.before)
             .count();
 
         failures == 0
@@ -36,13 +30,7 @@ impl Rules {
 
         let failures = rules
             .iter()
-            .filter_map(|rule| {
-                if a == rule.after && b == rule.before {
-                    Some(())
-                } else {
-                    None
-                }
-            })
+            .filter(|rule| a == rule.after && b == rule.before)
             .count();
 
         if failures == 0 {
@@ -116,9 +104,7 @@ fn part2(data: &Data) -> usize {
             .filter_map(|e| usize::from_str(e).ok())
             .collect();
 
-        if values.is_sorted_by(|a, b| data.rules.cmp(*a, *b)) {
-            //count += mid_value(&values);
-        } else {
+        if !values.is_sorted_by(|a, b| data.rules.cmp(*a, *b)) {
             values.sort_by(|a, b| data.rules.sort(*a, *b));
             count += mid_value(&values);
         }
