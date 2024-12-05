@@ -1,4 +1,4 @@
-use std::{fs::read_to_string, path::PathBuf, str::FromStr};
+use std::{cmp::Ordering, fs::read_to_string, path::PathBuf, str::FromStr};
 
 const INPUT: &str = "input1.txt";
 
@@ -29,6 +29,27 @@ impl Rules {
             .count();
 
         failures == 0
+    }
+
+    pub fn sort(&self, a: usize, b: usize) -> Ordering {
+        let rules = &self.0;
+
+        let failures = rules
+            .iter()
+            .filter_map(|rule| {
+                if a == rule.after && b == rule.before {
+                    Some(())
+                } else {
+                    None
+                }
+            })
+            .count();
+
+        if failures == 0 {
+            Ordering::Less
+        } else {
+            Ordering::Equal
+        }
     }
 }
 
@@ -69,7 +90,7 @@ fn mid_value<T: Copy>(array: &[T]) -> T {
     array[array.len() / 2]
 }
 
-fn part1(data: &Data) {
+fn part1(data: &Data) -> usize {
     let mut count = 0;
 
     for update in &data.pages {
@@ -83,13 +104,37 @@ fn part1(data: &Data) {
         }
     }
 
-    println!("{count}");
+    count
+}
+
+fn part2(data: &Data) -> usize {
+    let mut count = 0;
+
+    for update in &data.pages {
+        let mut values: Vec<_> = update
+            .split(",")
+            .filter_map(|e| usize::from_str(e).ok())
+            .collect();
+
+        if values.is_sorted_by(|a, b| data.rules.cmp(*a, *b)) {
+            //count += mid_value(&values);
+        } else {
+            values.sort_by(|a, b| data.rules.sort(*a, *b));
+            count += mid_value(&values);
+        }
+    }
+
+    count
 }
 
 fn main() -> Result<()> {
     let data = get_data()?;
 
-    part1(&data);
+    let count = part1(&data);
+    println!("part 1: {count}");
+
+    let count = part2(&data);
+    println!("part 2: {count}");
 
     Ok(())
 }
