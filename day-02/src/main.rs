@@ -1,6 +1,6 @@
 use std::{fs::read_to_string, ops::RangeInclusive, path::PathBuf, str::FromStr};
 
-const INPUT: &str = "input1.txt";
+const INPUT: &str = "day-02/input1.txt";
 const DELIMITER: &str = " ";
 const SAFE_RANGE: RangeInclusive<usize> = 0..=3;
 

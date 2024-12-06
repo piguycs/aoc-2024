@@ -2,7 +2,7 @@ use std::{fs::read_to_string, path::PathBuf, str::FromStr};
 
 use regex::Regex;
 
-const INPUT: &str = "input1.txt";
+const INPUT: &str = "day-03/input1.txt";
 
 type Result<T, E = Box<dyn std::error::Error>> = std::result::Result<T, E>;
 

@@ -1,6 +1,6 @@
 use std::{fs::read_to_string, path::PathBuf, str::FromStr};
 
-const INPUT: &str = "input1.txt";
+const INPUT: &str = "day-04/input1.txt";
 const NEEDLE: &str = "XMAS";
 const NEEDLE_REV: &str = "SAMX";
 

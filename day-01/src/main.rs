@@ -5,7 +5,7 @@ const DELIMITER: &str = "   ";
 type Result<T, E = Box<dyn std::error::Error>> = std::result::Result<T, E>;
 
 fn get_lists() -> Result<(Vec<usize>, Vec<usize>)> {
-    let path = PathBuf::from_str("input1.txt")?;
+    let path = PathBuf::from_str("day-01/input1.txt")?;
 
     let mut one = vec![];
     let mut two = vec![];

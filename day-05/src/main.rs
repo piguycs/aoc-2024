@@ -1,6 +1,6 @@
 use std::{cmp::Ordering, fs::read_to_string, path::PathBuf, str::FromStr};
 
-const INPUT: &str = "input1.txt";
+const INPUT: &str = "day-05/input1.txt";
 
 type Result<T, E = Box<dyn std::error::Error>> = std::result::Result<T, E>;
 
