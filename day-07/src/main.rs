@@ -1,8 +1,62 @@
-use itertools::Itertools;
-
 use std::str::FromStr;
 
 const INPUT: &str = "input1.txt";
+
+const PART_ONE_OPS: [char; 2] = ['+', '*'];
+const PART_TWO_OPS: [char; 3] = ['+', '*', 'c'];
+
+// NOTE: we use c instead of || to indicate concat, since I use char for my operations instead of &str
+
+fn concat(a: usize, b: usize) -> usize {
+    let mut factor = 1;
+
+    while b >= factor {
+        factor *= 10;
+    }
+
+    a * factor + b
+}
+
+fn eval(numbers: &[usize], operations: &[char]) -> usize {
+    let mut result = numbers[0];
+
+    for (i, &op) in operations.iter().enumerate() {
+        result = match op {
+            '+' => result + numbers[i + 1],
+            '*' => result * numbers[i + 1],
+            'c' => concat(result, numbers[i + 1]),
+            _ => result,
+        };
+    }
+
+    result
+}
+
+fn find_right_result(numbers: &[usize], target: usize, operations: Vec<char>) -> Option<usize> {
+    if operations.len() == numbers.len() - 1 {
+        // this will usually fail for the first call, since we pass no operations
+        let result = eval(numbers, &operations);
+        if result == target {
+            return Some(result);
+        } else {
+            return None;
+        }
+    }
+
+    // Recurse by trying both '+' and '*' at the current position.
+    // AND ALSO ||, but we represent it using c
+    let possible_ops = PART_TWO_OPS;
+
+    for op in possible_ops {
+        let mut new_ops = operations.clone();
+        new_ops.push(op);
+        if let Some(result) = find_right_result(numbers, target, new_ops) {
+            return Some(result);
+        }
+    }
+
+    None
+}
 
 fn get_data(input: &str) {
     let mut ret = 0;
@@ -16,33 +70,8 @@ fn get_data(input: &str) {
             .map(|e| usize::from_str(e).expect("non number found in input"))
             .collect();
 
-        let mut operations = vec![];
-
-        let len_numbers = numbers.len();
-
-        for _ in 0..len_numbers {
-            operations.push('*');
-            operations.push('+');
-        }
-
-        let combos = operations.iter().cloned().permutations(len_numbers - 1);
-
-        for ops in combos {
-            let mut result = numbers[0];
-
-            // Combine numbers with operations
-            for i in 1..len_numbers {
-                match ops[i - 1] {
-                    '+' => result += numbers[i],
-                    '*' => result *= numbers[i],
-                    _ => unreachable!(),
-                };
-            }
-
-            if result == sum {
-                ret += result;
-                break;
-            }
+        if let Some(result) = find_right_result(&numbers, sum, vec![]) {
+            ret += result;
         }
     });
 
