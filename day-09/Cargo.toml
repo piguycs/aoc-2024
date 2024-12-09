@@ -1,0 +1,9 @@
+[package]
+name = "day-09"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+common = {workspace=true}
+indicatif = "0.17.9"
+itertools = "0.13.0"
