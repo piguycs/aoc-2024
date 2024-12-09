@@ -5,10 +5,10 @@ use itertools::Itertools;
 
 const INPUT: &str = "input1.txt";
 
-fn algorithm(input: &str) {
+fn get_data(input: &str) -> Vec<usize> {
     let mut block_id = 0;
 
-    let mut disk: Vec<_> = input
+    let disk: Vec<_> = input
         .chars()
         .map(|c| c.to_digit(10).unwrap_or(0))
         .tuples()
@@ -30,6 +30,10 @@ fn algorithm(input: &str) {
         })
         .collect();
 
+    disk
+}
+
+fn part1(mut disk: Vec<usize>) {
     let mut cursor = disk.len() as isize - 1;
 
     let pb = ProgressBar::new(disk.len() as u64);
@@ -63,5 +67,7 @@ fn algorithm(input: &str) {
 
 fn main() {
     let input = common::get_input(9, INPUT);
-    algorithm(&input);
+    let disk = get_data(&input);
+
+    part1(disk);
 }
