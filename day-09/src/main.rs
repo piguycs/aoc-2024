@@ -5,6 +5,8 @@ use itertools::Itertools;
 
 const INPUT: &str = "input1.txt";
 
+const EMPTY: usize = usize::MAX;
+
 fn get_data(input: &str) -> Vec<usize> {
     let mut block_id = 0;
 
@@ -24,7 +26,7 @@ fn get_data(input: &str) -> Vec<usize> {
             // instead of using a string ".", we use max USIZE
             // this is unlikely to ever be a real block id, so we are kind of safe
             // and this still impliments Copy, so we dont have to clone
-            sector.extend(repeat(usize::MAX).take(free_space as usize));
+            sector.extend(repeat(EMPTY).take(free_space as usize));
 
             sector
         })
@@ -33,41 +35,48 @@ fn get_data(input: &str) -> Vec<usize> {
     disk
 }
 
+fn checksum(disk: Vec<usize>) -> usize {
+    disk.iter()
+        .filter(|e| **e != EMPTY)
+        .enumerate()
+        .map(|(i, num)| num * i)
+        .sum()
+}
+
+#[allow(dead_code)]
 fn part1(mut disk: Vec<usize>) {
     let mut cursor = disk.len() as isize - 1;
 
-    let pb = ProgressBar::new(disk.len() as u64);
+    let pb = ProgressBar::new(cursor as u64);
 
     while cursor >= 0 {
+        pb.inc(1);
         let to_move = disk[cursor as usize];
-        let mut moved = false;
 
-        disk[cursor as usize] = usize::MAX;
+        disk[cursor as usize] = EMPTY;
 
         for c in &mut disk {
-            if *c == usize::MAX && !moved {
+            if *c == EMPTY {
                 *c = to_move;
-                moved = true;
+                break;
             }
         }
 
         cursor -= 1;
-        pb.inc(1);
     }
 
-    let checksum: usize = disk
-        .iter()
-        .filter(|e| **e != usize::MAX)
-        .enumerate()
-        .map(|(i, num)| num * i)
-        .sum();
+    println!("part 1: {}", checksum(disk));
+}
 
-    println!("part 1: {checksum}");
+#[allow(unused)]
+fn part2(mut disk: Vec<usize>) {
+    //
 }
 
 fn main() {
     let input = common::get_input(9, INPUT);
     let disk = get_data(&input);
 
+    //part1(disk.clone());
     part1(disk);
 }
