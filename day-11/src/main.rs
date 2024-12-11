@@ -1,9 +1,6 @@
-// I keep this one here, cos it is still cool
-#[allow(unused)]
-mod old;
+use std::collections::HashMap;
 
 const INPUT: &str = "input1.txt";
-const BLINKS: usize = 25;
 
 fn get_split_digits(num: usize) -> Option<(usize, usize)> {
     // fun trivia, log10 of a number returns num_digits - 1
@@ -22,56 +19,62 @@ fn get_split_digits(num: usize) -> Option<(usize, usize)> {
     None
 }
 
-#[derive(Debug, Clone)]
-struct Data {
-    stones: Vec<usize>,
-}
-
-fn get_data(input: &str) -> Data {
+fn get_data(input: &str) -> Vec<usize> {
     let stones = input
         .replace("\n", "")
         .split(" ")
         .map(|e| e.parse::<usize>().expect("non number detected"))
         .collect();
 
-    Data { stones }
+    stones
 }
 
-fn algorithm(data: Data) -> Data {
-    let mut new_stones = vec![];
+// records how many times any number is present
+type Data = HashMap<usize, usize>;
 
-    for value in data.stones.into_iter() {
-        if value == 0 {
-            new_stones.push(1);
-        } else if let Some((left, right)) = get_split_digits(value) {
-            new_stones.push(left);
-            new_stones.push(right);
+fn algorithm(stones: Data) -> Data {
+    let mut new_stones = Data::new();
+
+    for (stone, count) in stones {
+        if stone == 0 {
+            let new_stone = 1;
+            *new_stones.entry(new_stone).or_insert(0) += count;
+        } else if let Some((left, right)) = get_split_digits(stone) {
+            *new_stones.entry(left).or_insert(0) += count;
+            *new_stones.entry(right).or_insert(0) += count;
         } else {
-            new_stones.push(value * 2024);
+            let new_stone = stone * 2024;
+            *new_stones.entry(new_stone).or_insert(0) += count;
         }
     }
 
-    //for x in &new_stones {
-    //    print!("{x} ");
-    //}
-    //println!();
-
-    Data { stones: new_stones }
+    new_stones
 }
 
-fn part1(mut data: Data) {
-    let mut count = BLINKS;
+fn blink_n_times(stones: Vec<usize>, blinks: usize) {
+    let mut count = blinks;
+
+    let mut data = Data::new();
+
+    for stone in stones {
+        *data.entry(stone).or_insert(0) += 1;
+    }
+
     while count > 0 {
         data = algorithm(data);
+
         count -= 1;
     }
 
-    println!("{}", data.stones.len());
+    println!("{}", data.values().sum::<usize>());
 }
 
 fn main() {
     let input = common::get_input(11, INPUT);
     let data = get_data(&input);
 
-    part1(data);
+    // part1: 25
+    // part2: 75
+
+    blink_n_times(data, 75);
 }
