@@ -1,7 +1,8 @@
 #![feature(let_chains)]
-#![allow(unused)]
 
-const INPUT: &str = "input1.txt";
+use common::Direction;
+
+const INPUT: &str = "input0.txt";
 
 type Data = common::SimpleData;
 
@@ -69,6 +70,67 @@ fn part1(sections: &Vec<Vec<(usize, usize)>>) {
     println!("part 1: {p1}");
 }
 
+fn count_corners(points: Vec<(usize, usize)>) -> usize {
+    for (x, y) in points {
+        let up = Direction::Up.next_coords(x, y);
+        let d1 = {
+            if let Some((x, y)) = Direction::Up.next_coords(x, y) {
+                Direction::Right.next_coords(x, y)
+            } else {
+                None
+            }
+        };
+        let right = Direction::Right.next_coords(x, y);
+        let d2 = {
+            if let Some((x, y)) = Direction::Right.next_coords(x, y) {
+                Direction::Down.next_coords(x, y)
+            } else {
+                None
+            }
+        };
+        let down = Direction::Down.next_coords(x, y);
+        let d3 = {
+            if let Some((x, y)) = Direction::Down.next_coords(x, y) {
+                Direction::Left.next_coords(x, y)
+            } else {
+                None
+            }
+        };
+        let left = Direction::Left.next_coords(x, y);
+        let d4 = {
+            if let Some((x, y)) = Direction::Left.next_coords(x, y) {
+                Direction::Up.next_coords(x, y)
+            } else {
+                None
+            }
+        };
+
+        #[allow(clippy::match_single_binding)]
+        match (up, d1, right, d2, left, d3, down, d4) {
+            _ => todo!(),
+        };
+    }
+
+    0
+}
+
+#[allow(unused)]
+#[allow(clippy::no_effect)]
+fn part2(sections: &Vec<Vec<(usize, usize)>>) {
+    let mut p2 = 0;
+
+    for section in sections {
+        let area = section.len();
+        let sides = count_corners(section.to_vec());
+        println!("{sides}");
+        todo!();
+
+        p2 += sides * area;
+    }
+
+    println!("part 2: {p2}");
+}
+
 fn main() {
     let input = common::get_input(12, INPUT);
     let data = Data { input };
@@ -76,4 +138,5 @@ fn main() {
     let sections = get_sections(&data);
 
     part1(&sections);
+    part2(&sections);
 }

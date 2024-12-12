@@ -27,6 +27,25 @@ impl Direction {
         }
     }
 
+    pub fn sum_next_coords(dirs: &[Self], x: usize, y: usize) -> Option<(usize, usize)> {
+        let mut finalx = x;
+        let mut finaly = y;
+
+        for dir in dirs {
+            let (newx, newy) = match dir {
+                Self::Up => Some((x, y.checked_sub(1)?)),
+                Self::Right => Some((x + 1, y)),
+                Self::Down => Some((x, y + 1)),
+                Self::Left => Some((x.checked_sub(1)?, y)),
+            }?;
+
+            finalx += newx;
+            finaly += newy;
+        }
+
+        Some((finalx, finaly))
+    }
+
     pub fn all_next_coords(x: usize, y: usize) -> Vec<(usize, usize)> {
         let mut ans = vec![];
 
