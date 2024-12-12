@@ -1,10 +1,15 @@
 #![feature(let_chains)]
 
 use common::Direction;
+use itertools::Itertools;
 
-const INPUT: &str = "input0.txt";
+const INPUT: &str = "input1.txt";
 
 type Data = common::SimpleData;
+
+fn i2u(a: (isize, isize)) -> (usize, usize) {
+    (a.0 as usize, a.1 as usize)
+}
 
 fn area_r(
     curr: char,
@@ -23,13 +28,13 @@ fn area_r(
         && c == curr
     {
         section.push((x, y));
-        for (newx, newy) in common::Direction::all_next_coords(x, y) {
+        for (newx, newy) in Direction::all_next_coords(x, y) {
             area_r(curr, data, newx, newy, visited, section);
         }
     }
 }
 
-fn get_sections(data: &Data) -> Vec<Vec<(usize, usize)>> {
+fn get_sections(data: &Data) -> Vec<(char, Vec<(usize, usize)>)> {
     let mut visited_sections = vec![];
     let mut curr_section = vec![];
 
@@ -40,7 +45,7 @@ fn get_sections(data: &Data) -> Vec<Vec<(usize, usize)>> {
             if !visited_sections.contains(&(x, y)) {
                 let c = data.at(x, y).unwrap();
                 area_r(c, data, x, y, &mut vec![], &mut curr_section);
-                sections.push(curr_section.clone());
+                sections.push((c, curr_section.clone()));
                 visited_sections.append(&mut curr_section);
             }
         }
@@ -49,15 +54,15 @@ fn get_sections(data: &Data) -> Vec<Vec<(usize, usize)>> {
     sections
 }
 
-fn part1(sections: &Vec<Vec<(usize, usize)>>) {
+fn part1(sections: &Vec<(char, Vec<(usize, usize)>)>) {
     let mut p1 = 0;
 
-    for section in sections {
+    for (_, section) in sections {
         let area = section.len();
         let mut total = area * 4;
 
         for (x, y) in section {
-            for (newx, newy) in common::Direction::all_next_coords(*x, *y) {
+            for (newx, newy) in Direction::all_next_coords(*x, *y) {
                 if section.contains(&(newx, newy)) {
                     total -= 1;
                 }
@@ -70,65 +75,62 @@ fn part1(sections: &Vec<Vec<(usize, usize)>>) {
     println!("part 1: {p1}");
 }
 
-fn count_corners(points: Vec<(usize, usize)>) -> usize {
-    for (x, y) in points {
-        let up = Direction::Up.next_coords(x, y);
-        let d1 = {
-            if let Some((x, y)) = Direction::Up.next_coords(x, y) {
-                Direction::Right.next_coords(x, y)
-            } else {
-                None
-            }
-        };
-        let right = Direction::Right.next_coords(x, y);
-        let d2 = {
-            if let Some((x, y)) = Direction::Right.next_coords(x, y) {
-                Direction::Down.next_coords(x, y)
-            } else {
-                None
-            }
-        };
-        let down = Direction::Down.next_coords(x, y);
-        let d3 = {
-            if let Some((x, y)) = Direction::Down.next_coords(x, y) {
-                Direction::Left.next_coords(x, y)
-            } else {
-                None
-            }
-        };
-        let left = Direction::Left.next_coords(x, y);
-        let d4 = {
-            if let Some((x, y)) = Direction::Left.next_coords(x, y) {
-                Direction::Up.next_coords(x, y)
-            } else {
-                None
-            }
-        };
+fn part2(sections: &Vec<(char, Vec<(usize, usize)>)>) {
+    const DIRECTIONS: [(isize, isize); 4] = [(0, -1), (1, 0), (0, 1), (-1, 0)];
 
-        #[allow(clippy::match_single_binding)]
-        match (up, d1, right, d2, left, d3, down, d4) {
-            _ => todo!(),
-        };
-    }
+    let mut total = 0;
 
-    0
-}
-
-#[allow(unused)]
-#[allow(clippy::no_effect)]
-fn part2(sections: &Vec<Vec<(usize, usize)>>) {
-    let mut p2 = 0;
-
-    for section in sections {
+    for (_, section) in sections {
         let area = section.len();
-        let sides = count_corners(section.to_vec());
-        println!("{sides}");
-        todo!();
 
-        p2 += sides * area;
+        let mut corner_count = 0;
+
+        for &(x, y) in section {
+            for ((dx1, dy1), (dx2, dy2)) in DIRECTIONS.iter().circular_tuple_windows() {
+                // we are getting the coordinates of 2 neighbours and a diagonal
+                // take for example the coordinates (3, 2), and deltas (0, -1), (1, 0)
+                // neighbour_a = (3 + 0,     2 - 1    ) = (3, 1)
+                // neighbour_b = (3 + 1,     2 + 0    ) = (4, 2)
+                // diagonal    = (3 + 0 + 1, 2 - 1 + 0) = (4, 1)
+                // the values (3, 1), (4, 2) and (4, 1) perfectly cover a corner
+                let neighbour_a = (x as isize + dx1, y as isize + dy1);
+                let neighbour_b = (x as isize + dx2, y as isize + dy2);
+                let diagonal = (x as isize + dx1 + dx2, y as isize + dy1 + dy2);
+
+                // i2u is a simple helper function to convert (isize, isize) -> (usize, usize)
+                let neighbour_a = i2u(neighbour_a);
+                let neighbour_b = i2u(neighbour_b);
+                let diagonal = i2u(diagonal);
+
+                // we check which of the neighbours/diagonals are inside the section
+                let is_a_in = section.contains(&neighbour_a);
+                let is_b_in = section.contains(&neighbour_b);
+                let is_diagonal_in = section.contains(&diagonal);
+
+                // now we are only iterating over points that are part of the section
+                // if both neighbours are outside, then this means that we are at a turning
+                // point. This is just a normal corner
+                let is_corner = !is_a_in && !is_b_in;
+
+                // this corner has one cell to the outside. Imagine a minesweeper tile with
+                // one open spot and a 1 engraving on it. This is kind of like that.
+                //
+                // XXXXXX
+                // XX1XXX
+                // XXX
+                // XXX
+                let is_minesweeper_corner = is_a_in && is_b_in && !is_diagonal_in;
+
+                if is_minesweeper_corner || is_corner {
+                    corner_count += 1;
+                }
+            }
+        }
+
+        total += area * corner_count;
     }
 
-    println!("part 2: {p2}");
+    println!("part 2: {total}");
 }
 
 fn main() {

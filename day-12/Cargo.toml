@@ -5,3 +5,4 @@ edition = "2024"
 
 [dependencies]
 common = {workspace=true}
+itertools = "0.13.0"
