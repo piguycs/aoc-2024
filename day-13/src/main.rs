@@ -9,21 +9,23 @@ const INPUT: &str = "input1.txt";
 const PATTERN: &str = r"\d+";
 static REGEX: LazyLock<Regex> = LazyLock::new(|| Regex::new(PATTERN).unwrap());
 
-const COST_A: i32 = 3;
-const COST_B: i32 = 1;
+const COST_A: isize = 3;
+const COST_B: isize = 1;
+
+const MAX_TRIES: isize = 100;
 
 #[derive(Debug)]
 struct Data {
-    a: (i32, i32),
-    b: (i32, i32),
-    target: (i32, i32),
+    a: (isize, isize),
+    b: (isize, isize),
+    target: (isize, isize),
 }
 
 fn parse_data(haystack: &str) -> Data {
     let nums = REGEX
         .find_iter(haystack)
         .map(|mat| mat.as_str().replace("\n", ""))
-        .map(|s| s.parse::<i32>().expect("non digit detected"))
+        .map(|s| s.parse::<isize>().expect("non digit detected"))
         .collect_vec();
 
     Data {
@@ -39,15 +41,10 @@ fn get_data(input: &str) -> Vec<Data> {
 }
 
 fn part1(data: &[Data]) -> usize {
-    let presses = (0..=100)
-        .permutations(2)
-        .map(|e| (e[0], e[1]))
-        .collect_vec();
-
     let mut cost = 0;
 
     // safe to assume MAX is an invalid number
-    let mut min_cost = i32::MAX;
+    let mut min_cost = isize::MAX;
 
     for data in data {
         let (ax, ay) = data.a;
@@ -56,12 +53,14 @@ fn part1(data: &[Data]) -> usize {
 
         let mut solutions = vec![];
 
-        for &(press_a, press_b) in &presses {
-            let nx = (ax * press_a) + (bx * press_b);
-            let ny = (ay * press_a) + (by * press_b);
+        for press_a in 0..=MAX_TRIES {
+            for press_b in 0..=MAX_TRIES {
+                let nx = (ax * press_a) + (bx * press_b);
+                let ny = (ay * press_a) + (by * press_b);
 
-            if (nx, ny) == data.target {
-                solutions.push((press_a, press_b));
+                if (nx, ny) == data.target {
+                    solutions.push((press_a, press_b));
+                }
             }
         }
 
