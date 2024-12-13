@@ -1,10 +1,16 @@
-use std::iter::repeat;
+#![allow(unused)]
+
+use std::{collections::HashMap, iter::repeat};
 
 use indicatif::ProgressBar;
 use itertools::Itertools;
 
-const INPUT: &str = "input1.txt";
+const INPUT: &str = "input0.txt";
 
+// instead of using a string ".", we use usize::MAX
+// this is unlikely to ever be a real block id, so we are kind of safe
+// and this still impliments Copy, so we dont have to clone
+// alternative would be to start block_id at 1, and set value of this field to 0
 const EMPTY: usize = usize::MAX;
 
 fn get_data(input: &str) -> Vec<usize> {
@@ -23,9 +29,6 @@ fn get_data(input: &str) -> Vec<usize> {
             sector.extend(repeat(block_id).take(file_size as usize));
             block_id += 1;
 
-            // instead of using a string ".", we use max USIZE
-            // this is unlikely to ever be a real block id, so we are kind of safe
-            // and this still impliments Copy, so we dont have to clone
             sector.extend(repeat(EMPTY).take(free_space as usize));
 
             sector
@@ -43,19 +46,19 @@ fn checksum(disk: Vec<usize>) -> usize {
         .sum()
 }
 
-#[allow(dead_code)]
 fn part1(mut disk: Vec<usize>) {
     let mut cursor = disk.len() as isize - 1;
 
     let pb = ProgressBar::new(cursor as u64);
 
     while cursor >= 0 {
-        pb.inc(1);
+        // this is the last element
         let to_move = disk[cursor as usize];
 
+        // we set the last element to be empty
         disk[cursor as usize] = EMPTY;
 
-        for c in &mut disk {
+        for c in disk.iter_mut() {
             if *c == EMPTY {
                 *c = to_move;
                 break;
@@ -63,12 +66,14 @@ fn part1(mut disk: Vec<usize>) {
         }
 
         cursor -= 1;
+        pb.inc(1);
     }
+
+    pb.finish();
 
     println!("part 1: {}", checksum(disk));
 }
 
-#[allow(unused)]
 fn part2(mut disk: Vec<usize>) {
     //
 }
@@ -78,5 +83,5 @@ fn main() {
     let disk = get_data(&input);
 
     //part1(disk.clone());
-    part1(disk);
+    part2(disk);
 }
