@@ -6,3 +6,6 @@ edition = "2024"
 [dependencies]
 common = {workspace = true}
 regex = {workspace = true}
+itertools = {workspace = true}
+plotters = "0.3.7"
+indicatif = "0.17.9"

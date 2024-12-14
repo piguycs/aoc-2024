@@ -1,5 +1,10 @@
+mod gpt;
+
+use indicatif::ProgressBar;
+use plotters::prelude::*;
 use regex::Regex;
 
+use std::error::Error;
 use std::sync::LazyLock;
 
 const INPUT_TEST: &str = "input0.txt";
@@ -53,6 +58,7 @@ impl Robot {
 struct Board(Vec<Robot>);
 
 impl Board {
+    #[allow(dead_code)]
     fn print(&self, width: i32, height: i32) {
         let mx = width / 2;
         let my = height / 2;
@@ -109,6 +115,12 @@ impl Board {
 
         vec![q1, q2, q3, q4]
     }
+
+    fn peak_density(&self) -> usize {
+        let positions: Vec<_> = self.0.iter().map(|e| e.pos).collect();
+
+        gpt::find_largest_cluster(positions)
+    }
 }
 
 fn get_data(input: &str) -> Vec<Robot> {
@@ -137,12 +149,85 @@ fn part1(mut data: Vec<Robot>, grid_width: i32, grid_height: i32) {
     println!("part 1: {p1}");
 }
 
+fn plot(peak_densities: Vec<usize>) -> Result<(), Box<dyn Error>> {
+    let root = BitMapBackend::new("peak_densities.png", (800, 600)).into_drawing_area();
+    root.fill(&WHITE)?;
+
+    // Create the chart
+    let mut chart = ChartBuilder::on(&root)
+        .caption("Peak Densities", ("sans-serif", 20).into_font())
+        .margin(5)
+        .x_label_area_size(40)
+        .y_label_area_size(40)
+        .build_cartesian_2d(
+            0..peak_densities.len() as u32,
+            0..*peak_densities.iter().max().unwrap_or(&0) as u32,
+        )?;
+
+    chart.draw_series(
+        peak_densities
+            .iter()
+            .enumerate()
+            .map(|(x, &y)| Circle::new((x as u32, y as u32), 5, RED.filled())),
+    )?;
+
+    // I retroactively added x + 1 and the limiter for y values once I got my answer
+    // this is so that the graph I generate looks good when presenting to others
+    for (x, &y) in peak_densities.iter().enumerate() {
+        if y > 200 {
+            chart.draw_series(std::iter::once(Text::new(
+                format!("({},{})", x + 1, y),
+                (x as u32, y as u32),
+                ("monospace", 16).into_font(),
+            )))?;
+        }
+    }
+
+    chart.configure_mesh().draw()?;
+
+    root.present()?;
+    Ok(())
+}
+
+fn part2(mut data: Vec<Robot>, grid_width: i32, grid_height: i32) {
+    let mut peak_densities = vec![];
+
+    let pb = ProgressBar::new(10000);
+    for _ in 0..10000 {
+        for robot in &mut data {
+            robot.tick(grid_width, grid_height);
+        }
+        let board = Board(data.clone());
+        peak_densities.push(board.peak_density());
+        pb.inc(1);
+    }
+
+    pb.finish();
+
+    plot(peak_densities).unwrap();
+}
+
+fn show_val(mut data: Vec<Robot>, grid_width: i32, grid_height: i32, val: usize) {
+    println!();
+    for _ in 0..val {
+        for robot in &mut data {
+            robot.tick(grid_width, grid_height);
+        }
+    }
+    let board = Board(data.clone());
+    board.print(grid_width, grid_height);
+}
+
 fn main() {
     let inputs = [(INPUT_TEST, 11, 7), (INPUT_REAL, 101, 103)];
-    let (file, grid_width, grid_height) = inputs[0];
+    let (file, grid_width, grid_height) = inputs[1];
 
     let input = common::get_input(14, file);
     let data = get_data(&input);
 
     part1(data.clone(), grid_width, grid_height);
+    part2(data.clone(), grid_width, grid_height);
+
+    // this was my answer
+    show_val(data, grid_width, grid_height, 7502);
 }
