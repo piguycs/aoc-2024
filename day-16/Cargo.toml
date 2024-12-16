@@ -1,0 +1,10 @@
+[package]
+name = "day-16"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+common = {workspace = true}
+crossterm = "0.28.1"
+glam = {workspace = true}
+pathfinding = "4.12.0"
