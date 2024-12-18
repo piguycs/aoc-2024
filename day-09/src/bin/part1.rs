@@ -1,15 +1,16 @@
 #![allow(unused)]
 
-use day_09::parse;
+use day_09::process;
 
 fn main() {
     let input = include_str!("../../input1.txt");
-    parse(input);
+    let input = "2333133121414131402";
+    process(input);
 }
 
 #[test]
 fn test() {
     let input = "2333133121414131402";
     let out = 1928;
-    parse(input);
+    //assert_eq!(process(input), out);
 }

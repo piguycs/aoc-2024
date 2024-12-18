@@ -5,47 +5,56 @@ use std::char;
 
 use itertools::Itertools;
 
-pub fn parse(input: &str) {
-    let mut digits = input
-        .chars()
-        .filter_map(|e| e.to_digit(10).map(|e| e as usize))
-        .collect_vec();
+pub fn print(digits: &[(bool, usize)]) {
+    let mut id = 0;
 
-    // this is the maximum possible iterations I would need
-    // in my old implimentation, this would have been the length of the uncompressed array
-    let max: usize = digits.iter().sum();
+    for &(is_file, space) in digits {
+        let o = if is_file {
+            let o = format!("{id}");
+            id += 1;
+            o
+        } else {
+            ".".to_string()
+        };
 
-    let mut end_idx = digits.len() - 1;
-
-    for i in 0..max {
-        if i >= digits.len() || end_idx == 0 {
-            break;
-        }
-
-        let is_free = i % 2 != 0;
-        let is_file = !is_free;
-
-        let space = digits[i];
-
-        if is_free {
-            let last_space = digits[end_idx - 1];
-
-            if last_space >= space {
-                let remaining_space = last_space - space;
-                digits.insert(i + 1, remaining_space);
-                digits.insert(i + 2, 0);
-                digits[end_idx] = last_space - remaining_space;
-            } else {
-                let remaining_space = space - last_space;
-                digits.insert(i + 1, last_space);
-                digits.insert(i + 2, remaining_space);
-                digits[end_idx] = 0;
-            }
-
-            // set current space to nul
-            digits[i] = 0;
-            // decrease end index by 1
-            end_idx -= 1;
+        for _ in 0..space {
+            print!("{o}");
         }
     }
+    println!();
+}
+
+pub fn process(input: &str) -> usize {
+    let mut digits = input
+        .chars()
+        .filter_map(|e| e.to_digit(10))
+        .enumerate()
+        .map(|(i, e)| (i % 2 == 0, e as usize))
+        .collect_vec();
+
+    let max: usize = digits.iter().map(|(_, e)| e).sum();
+
+    let mut last_idx = digits.len() - 1;
+
+    print(&digits);
+
+    for i in 0..max {
+        if let Some(&(is_file, space)) = digits.get(i) {
+            if !is_file {
+                println!("⎡space: {space}");
+                let (_, last_space) = digits[last_idx];
+                println!("⎣last file space: {}", last_space);
+
+                if space > last_space {
+                    let diff = space - last_space;
+                }
+            }
+        } else {
+            break;
+        }
+    }
+
+    print(&digits);
+
+    0
 }
