@@ -52,15 +52,11 @@ impl Board {
             .filter(|(e, _)| !self.corruption.contains(e))
             .collect_vec();
 
-        //
-
         neighbours
     }
 
-    pub fn traverse(&self) -> u32 {
-        let a = dijkstra(&self.start, |&e| self.successor(e), |&e| e == self.end)
-            .expect("dijkstra did not find any paths");
-
-        a.1
+    pub fn traverse(&self) -> Option<u32> {
+        let path = dijkstra(&self.start, |&e| self.successor(e), |&e| e == self.end)?;
+        Some(path.1)
     }
 }

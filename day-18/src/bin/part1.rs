@@ -6,7 +6,7 @@ fn main() {
 
     let ans = board.traverse();
 
-    println!("part 1: {ans}");
+    println!("part 1: {ans:?}");
 }
 
 #[test]
@@ -19,5 +19,5 @@ fn test() {
 
     let score = board.traverse();
 
-    assert_eq!(score, 22);
+    assert_eq!(score, Some(22));
 }
