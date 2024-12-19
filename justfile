@@ -9,3 +9,6 @@
 [no-cd]
 @p2:
     cargo run --bin part2
+
+create day:
+    cargo generate --path ./template/ --name {{day}}
