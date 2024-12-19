@@ -14,23 +14,42 @@ pub fn parse(input: &str) -> (Vec<&str>, Vec<&str>) {
 
 pub fn find_match(towels: &[&str], needle: &str) -> bool {
     let mut memo = HashMap::new();
-    find_match_memo(towels, needle, &mut memo)
+    let mut matches = HashMap::new();
+    find_match_memo(towels, needle, &mut memo, &mut matches)
 }
 
-fn find_match_memo(towels: &[&str], needle: &str, memo: &mut HashMap<String, bool>) -> bool {
+pub fn find_combinations(towels: &[&str], needle: &str) -> Option<usize> {
+    let mut memo = HashMap::new();
+    let mut matches = HashMap::new();
+    find_match_memo(towels, needle, &mut memo, &mut matches);
+
+    matches.get(needle).copied()
+}
+
+fn find_match_memo(
+    towels: &[&str],
+    needle: &str,
+    memo: &mut HashMap<String, bool>,
+    matches: &mut HashMap<String, usize>,
+) -> bool {
     if let Some(&result) = memo.get(needle) {
         return result;
     }
 
+    let mut count = 0;
+
     for &towel in towels {
         if let Some(trunc) = needle.strip_prefix(towel) {
-            if trunc.is_empty() || find_match_memo(towels, trunc, memo) {
-                memo.insert(needle.to_string(), true);
-                return true;
+            if trunc.is_empty() {
+                count += 1;
+            } else if find_match_memo(towels, trunc, memo, matches) {
+                count += matches.get(trunc).copied().unwrap_or(0);
             }
         }
     }
 
-    memo.insert(needle.to_string(), false);
-    false
+    memo.insert(needle.to_string(), count > 0);
+    matches.insert(needle.to_string(), count);
+
+    count > 0
 }
