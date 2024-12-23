@@ -46,7 +46,7 @@ pub fn count_containing(groups: HashSet<(String, String, String)>, containing: &
     groups
         .iter()
         .filter(|(h1, h2, h3)| {
-            h1.contains(containing) || h2.contains(containing) || h3.contains(containing)
+            h1.starts_with(containing) || h2.starts_with(containing) || h3.starts_with(containing)
         })
         .count()
 }
