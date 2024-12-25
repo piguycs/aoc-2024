@@ -7,3 +7,4 @@ common = { path = "./common" }
 itertools = "0.13.0"
 regex = "1.11.1"
 glam = "0.29.2"
+rstest = {version = "0.23.0", default-features = false, features = ["crate-name"]}
