@@ -1,5 +1,10 @@
 use glam::{ivec2, IVec2};
+use indicatif::ProgressBar;
+use itertools::Itertools;
 use pathfinding::prelude::*;
+use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
+
+type Path = Option<(Vec<(IVec2, IVec2, Vec<IVec2>)>, i32)>;
 
 #[derive(Debug, Clone)]
 pub struct Board {
@@ -62,7 +67,18 @@ impl Board {
     }
 
     pub fn traverse(&self) -> usize {
-        let path = dijkstra(
+        let path = self.dijkstra_with_obstacle(None).expect("path invalid");
+
+        path.0.last().map(|e| e.2.len()).unwrap_or(0)
+    }
+
+    pub fn dijkstra_with_obstacle(&self, obstacle: Option<IVec2>) -> Path {
+        let mut walls = self.walls.clone();
+        if let Some(obstacle) = obstacle {
+            walls.push(obstacle);
+        }
+
+        dijkstra(
             &(self.guard, self.guard_dir, Vec::<IVec2>::new()),
             |(pos, direction, visited)| {
                 let mut neighbors = vec![];
@@ -74,7 +90,7 @@ impl Board {
 
                 let forward_pos = *pos + *direction;
 
-                if self.walls.contains(&forward_pos) {
+                if walls.contains(&forward_pos) {
                     let new_direction = direction.perp();
                     neighbors.push(((*pos, new_direction, new_visited), 1));
                 } else {
@@ -90,8 +106,27 @@ impl Board {
                 !(0..width).contains(&pos.x) || !(0..height).contains(&pos.y)
             },
         )
-        .expect("path invalid");
+    }
 
-        path.0.last().map(|e| e.2.len()).unwrap_or(0)
+    pub fn paradox(&self) -> usize {
+        let path = self.dijkstra_with_obstacle(None).expect("path invalid");
+
+        let positions = path.0.iter().map(|e| e.0).unique().collect_vec();
+
+        let pb = ProgressBar::new(positions.len() as u64);
+
+        positions
+            .par_iter()
+            .map(|&pos| {
+                pb.inc(1);
+                let path = self.dijkstra_with_obstacle(Some(pos));
+
+                if path.is_none() {
+                    1
+                } else {
+                    0
+                }
+            })
+            .sum()
     }
 }
