@@ -1,4 +1,4 @@
-use glam::{IVec2, ivec2};
+use glam::{ivec2, IVec2};
 use pathfinding::prelude::*;
 
 const A: usize = usize::MAX;
@@ -151,11 +151,16 @@ impl Keypad {
     pub fn find(&self, num: usize) -> (Vec<(IVec2, Num)>, usize) {
         let num = Num::parse(num);
 
-        dijkstra(
+        let paths = astar_bag(
             &(self.action, num),
             |(pos, num)| self.successor(*pos, num),
+            |_| 0,
             |(pos, num)| num.found_all() && *pos == self.action,
         )
-        .expect("no path found")
+        .expect("no path found");
+
+        let possible_paths: Vec<_> = paths.0.collect();
+
+        (possible_paths[0].clone(), paths.1)
     }
 }
