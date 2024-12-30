@@ -1,8 +1,9 @@
-fn main() {
-    todo!("part 2");
-}
+use day_08::Antennas;
 
-#[test]
-fn test() {
-    todo!("part 2 test");
+fn main() {
+    let input = include_str!("../../input1.txt");
+
+    let antennas = Antennas::parse(input);
+
+    println!("{}", antennas.num_all_antinodes());
 }
