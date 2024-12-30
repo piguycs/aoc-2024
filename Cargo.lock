@@ -277,7 +277,8 @@ dependencies = [
 name = "day-08"
 version = "0.1.0"
 dependencies = [
- "common",
+ "glam",
+ "pathfinding",
 ]
 
 [[package]]
