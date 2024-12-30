@@ -148,7 +148,7 @@ impl Keypad {
             .collect()
     }
 
-    pub fn find(&self, num: usize) -> (Vec<(IVec2, Num)>, usize) {
+    pub fn find(&self, num: usize) -> (Vec<Vec<(IVec2, Num)>>, usize) {
         let num = Num::parse(num);
 
         let paths = astar_bag(
@@ -159,8 +159,6 @@ impl Keypad {
         )
         .expect("no path found");
 
-        let possible_paths: Vec<_> = paths.0.collect();
-
-        (possible_paths[0].clone(), paths.1)
+        (paths.0.collect(), paths.1)
     }
 }

@@ -2,13 +2,15 @@ use day_21::*;
 
 fn main() {
     let input = include_str!("../../input0.txt");
-    parse(input);
+    let nums = parse(input);
 
     let keypad = Keypad::default();
-    let path = keypad.find(29);
-
     let dirpad = DirPad::default();
-    dirpad.find(path.0);
+
+    let (paths, score) = keypad.find(nums[0]);
+    for path in paths {
+        dirpad.parse_path((path, score));
+    }
 }
 
 #[test]
@@ -21,8 +23,7 @@ fn test() {
     let keypad = Keypad::default();
     let path = keypad.find(29);
 
-    let dirpad = DirPad::default();
-    dirpad.find(path.0);
+    dbg!(path);
 
-    assert_eq!(path.1, 8);
+    todo!();
 }
