@@ -36,6 +36,18 @@ impl From<IVec2> for Key {
     }
 }
 
+impl From<Key> for IVec2 {
+    fn from(value: Key) -> Self {
+        match value {
+            Key::Left => IVec2::NEG_X,
+            Key::Right => IVec2::X,
+            Key::Up => IVec2::NEG_Y,
+            Key::Down => IVec2::Y,
+            Key::Action => IVec2::ZERO,
+        }
+    }
+}
+
 impl Display for Key {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let txt = match self {
@@ -97,22 +109,18 @@ impl DirPad {
     fn successor(
         &self,
         pos: IVec2,
-        found: bool,
+        mut found: bool,
         key: Key,
         state: Vec<Key>,
     ) -> Vec<((IVec2, bool, Vec<Key>), usize)> {
-        if !found && self.at(pos) == key {
-            let mut new_state = state.clone();
-            new_state.push(Key::Action);
-            return vec![((pos, true, new_state), 0)];
+        if key == Key::Action {
+            found = true;
         }
 
-        if key == Key::Action {
-            if pos == self.action {
-                return vec![((pos, true, vec![key]), 0)];
-            } else {
-                panic!("GODVERDOMME KANKER VRAG"); // never hits this case
-            }
+        if key == Key::Action && self.at(pos) == key {
+            let mut state = state.clone();
+            state.push(Key::Action);
+            return vec![((pos, true, state), 0)];
         }
 
         [IVec2::NEG_X, IVec2::X, IVec2::NEG_Y, IVec2::Y]
@@ -151,8 +159,9 @@ impl DirPad {
             )
             .expect("no paths found");
 
-            count += path.1;
-            for k in &path.0.last().unwrap().2 {
+            let pathhhh = path.0.last().unwrap().2.clone();
+            count += pathhhh.len();
+            for k in pathhhh {
                 print!("{}", k);
             }
         }
@@ -167,6 +176,41 @@ impl DirPad {
             .map(|(_, state)| state.clone())
             .last()
             .expect("path should have some elements");
+
+        for move_vec in &end_state.h_moves {
+            match *move_vec {
+                IVec2 { x: 1, y: 0 } => print!(">"),
+                IVec2 { x: -1, y: 0 } => print!("<"),
+                IVec2 { x: 0, y: 1 } => print!("v"),
+                IVec2 { x: 0, y: -1 } => print!("^"),
+                _ => print!("?"), // Unknown direction
+            }
+        }
+        print!("A");
+
+        for move_vec in &end_state.t_moves {
+            match *move_vec {
+                IVec2 { x: 1, y: 0 } => print!(">"),
+                IVec2 { x: -1, y: 0 } => print!("<"),
+                IVec2 { x: 0, y: 1 } => print!("v"),
+                IVec2 { x: 0, y: -1 } => print!("^"),
+                _ => print!("?"),
+            }
+        }
+        print!("A");
+
+        for move_vec in &end_state.o_moves {
+            match *move_vec {
+                IVec2 { x: 1, y: 0 } => print!(">"),
+                IVec2 { x: -1, y: 0 } => print!("<"),
+                IVec2 { x: 0, y: 1 } => print!("v"),
+                IVec2 { x: 0, y: -1 } => print!("^"),
+                _ => print!("?"),
+            }
+        }
+        print!("A");
+
+        println!();
 
         let moves = end_state
             .moves()
