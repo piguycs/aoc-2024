@@ -1,7 +1,9 @@
 use glam::{ivec2, IVec2};
 
+use super::Dir;
+
 pub struct DirPad {
-    keypad: [(super::Dir, IVec2); 5],
+    pub keypad: [(Dir, IVec2); 5],
 }
 
 impl Default for DirPad {

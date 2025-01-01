@@ -19,4 +19,9 @@ mod test {
     fn move_numpad(#[case] num: &str, #[case] move_len: usize) {
         assert_eq!(NUMPAD.get_moves(num).len(), move_len);
     }
+
+    #[rstest::rstest]
+    fn dirpad_memory() {
+        assert_eq!(DIRPAD.build_memory().len(), 25)
+    }
 }
