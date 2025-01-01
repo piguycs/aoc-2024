@@ -1,7 +1,8 @@
 #![allow(unused)]
 
 mod dirpad;
-mod numpad;
+pub mod numpad;
+mod numpad_new;
 
 use std::{collections::HashMap, sync::LazyLock};
 
@@ -10,7 +11,7 @@ use itertools::Itertools;
 use pathfinding::prelude::*;
 
 use dirpad::*;
-use numpad::*;
+use numpad_new::*;
 
 pub static NUMPAD: LazyLock<NumPad> = LazyLock::new(NumPad::default);
 pub static DIRPAD: LazyLock<DirPad> = LazyLock::new(DirPad::default);

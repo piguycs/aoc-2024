@@ -7,11 +7,8 @@ fn main() {
 
     let mut moves = NUMPAD.get_moves("029A");
 
-    for i in 0..25 {
-        println!("{}", moves.len());
-        moves = DIRPAD.traverse_seq(moves);
-        println!("{i}");
-    }
+    let k = numpad::Keypad::default();
+    k.find(29);
 }
 
 #[cfg(test)]
