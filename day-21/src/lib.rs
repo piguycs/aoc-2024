@@ -1,8 +1,7 @@
 #![allow(unused)]
 
 mod dirpad;
-pub mod numpad;
-mod numpad_new;
+mod numpad;
 
 use std::{collections::HashMap, sync::LazyLock};
 
@@ -11,7 +10,7 @@ use itertools::Itertools;
 use pathfinding::prelude::*;
 
 use dirpad::*;
-use numpad_new::*;
+use numpad::*;
 
 pub static NUMPAD: LazyLock<NumPad> = LazyLock::new(NumPad::default);
 pub static DIRPAD: LazyLock<DirPad> = LazyLock::new(DirPad::default);
@@ -48,7 +47,7 @@ impl DirPad {
     pub fn traverse_seq(&self, mut seq: Vec<Dir>) -> Vec<Dir> {
         seq.insert(0, Dir::Action); // initial position
 
-        let mem = &self.mem;
+        let mem = &self.mem; // HashMap: (start, end), Vec of direction
         let mt = &Vec::new();
 
         let vecs = seq
@@ -57,14 +56,26 @@ impl DirPad {
             .map(|(&start, &end)| mem.get(&(start, end)).unwrap().first().unwrap_or(mt))
             .collect_vec();
 
-        //dbg!(&vecs);
-
-        let lens: usize = vecs.iter().map(|e| e.len()).sum();
-        //dbg!(lens + vecs.len());
-
         vecs.iter()
             .flat_map(|v| v.iter().chain([&Dir::Action]))
             .cloned()
             .collect()
+    }
+
+    pub fn traverse_seq_all(&self, mut seq: Vec<Dir>) -> Vec<Vec<Dir>> {
+        seq.insert(0, Dir::Action); // initial position
+
+        let mem = &self.mem;
+
+        let vecs = seq
+            .iter()
+            .tuple_windows()
+            .map(|(&start, &end)| mem.get(&(start, end)).cloned().unwrap_or(vec![]))
+            .collect_vec();
+
+        let a = numpad::combine_directions(&vecs, 0, vec![]);
+        dbg!(&a);
+
+        a
     }
 }

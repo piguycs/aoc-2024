@@ -5,10 +5,7 @@ use day_21::*;
 fn main() {
     let input = include_str!("../../input1.txt");
 
-    let mut moves = NUMPAD.get_moves("029A");
-
-    let k = numpad::Keypad::default();
-    k.find(29);
+    let moves = NUMPAD.get_moves_all("029A");
 }
 
 #[cfg(test)]
@@ -34,13 +31,17 @@ mod test {
     #[rstest::rstest]
     #[case("029A", 28, 68)]
     fn dirpad_traverse(#[case] num: &str, #[case] len1: usize, #[case] len2: usize) {
-        let moves = NUMPAD.get_moves(num);
+        let moves = NUMPAD.get_moves_all(num);
         //dbg!(&moves);
 
-        let new_moves = DIRPAD.traverse_seq(moves);
-        assert_eq!(new_moves.len(), len1);
+        let mut moves = NUMPAD.get_moves_all(num);
+        let min_len = moves.iter().map(|v| v.len()).min().unwrap_or(0);
+        moves.retain(|v| v.len() == min_len);
 
-        let new_moves = DIRPAD.traverse_seq(new_moves);
-        assert_eq!(new_moves.len(), len2);
+        let mut moves = DIRPAD.traverse_seq_all(moves[0].clone());
+
+        assert_eq!(moves.len(), len1);
+
+        todo!();
     }
 }

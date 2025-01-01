@@ -75,7 +75,7 @@ pub fn path_to_dir(positions: &[IVec2]) -> Vec<Dir> {
             d if d == IVec2::NEG_X => Dir::Left,
             d if d == IVec2::Y => Dir::Down,
             d if d == IVec2::NEG_Y => Dir::Up,
-            _ => panic!("Invalid direction"),
+            d => panic!("Invalid direction {d}"),
         };
         moves.push(dir);
     }
