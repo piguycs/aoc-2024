@@ -6,6 +6,7 @@ mod numpad;
 use std::{collections::HashMap, sync::LazyLock};
 
 use glam::{ivec2, IVec2};
+use itertools::Itertools;
 use pathfinding::prelude::*;
 
 use dirpad::*;
@@ -43,59 +44,26 @@ impl DirPad {
             .unwrap()
     }
 
-    pub fn build_memory(&self) -> HashMap<(Dir, Dir), Vec<Vec<Dir>>> {
-        let mut mem = HashMap::new();
+    pub fn traverse_seq(&self, mut seq: Vec<Dir>) -> Vec<Dir> {
+        seq.insert(0, Dir::Action); // initial position
 
-        let combo = itertools::iproduct!(Dir::ALL, Dir::ALL).collect::<Vec<_>>();
+        let mem = &self.mem;
+        let mt = &Vec::new();
 
-        for (start, end) in combo {
-            let start_pos = self.ta(start);
-            let end_pos = self.ta(end);
+        let vecs = seq
+            .iter()
+            .tuple_windows()
+            .map(|(&start, &end)| mem.get(&(start, end)).unwrap().first().unwrap_or(mt))
+            .collect_vec();
 
-            let path = astar_bag_collect(
-                &start_pos,
-                |&pos| {
-                    [IVec2::NEG_X, IVec2::X, IVec2::NEG_Y, IVec2::Y]
-                        .iter()
-                        .filter_map(move |&d| {
-                            let pos = pos + d;
+        //dbg!(&vecs);
 
-                            self.at(pos).map(|_| (pos, 1))
-                        })
-                },
-                |_| 0,
-                |&dir| dir == end_pos,
-            )
-            .unwrap();
+        let lens: usize = vecs.iter().map(|e| e.len()).sum();
+        //dbg!(lens + vecs.len());
 
-            mem.insert(
-                (start, end),
-                path.0.iter().map(|e| path_to_dir(e)).collect(),
-            );
-        }
-
-        mem
+        vecs.iter()
+            .flat_map(|v| v.iter().chain([&Dir::Action]))
+            .cloned()
+            .collect()
     }
-
-    pub fn traverse_seq(&self, seq: Vec<Dir>) -> Vec<Dir> {
-        todo!()
-    }
-}
-
-pub fn path_to_dir(positions: &[IVec2]) -> Vec<Dir> {
-    let mut moves = vec![];
-
-    for i in 0..positions.len() - 1 {
-        let diff = positions[i + 1] - positions[i];
-        let dir = match diff {
-            d if d == IVec2::X => Dir::Right,
-            d if d == IVec2::NEG_X => Dir::Left,
-            d if d == IVec2::Y => Dir::Down,
-            d if d == IVec2::NEG_Y => Dir::Up,
-            _ => panic!("Invalid direction"),
-        };
-        moves.push(dir);
-    }
-
-    moves
 }

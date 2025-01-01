@@ -86,9 +86,6 @@ impl NumPad {
             moves.push(dir);
         }
 
-        dbg!(c);
-        dbg!(&moves);
-
         moves.push(Dir::Action);
 
         moves
