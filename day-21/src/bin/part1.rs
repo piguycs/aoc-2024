@@ -1,29 +1,22 @@
+#![allow(unused)]
+
 use day_21::*;
 
 fn main() {
-    let input = include_str!("../../input0.txt");
-    let nums = parse(input);
-
-    let keypad = Keypad::default();
-    let dirpad = DirPad::default();
-
-    let (paths, score) = keypad.find(nums[0]);
-    for path in paths {
-        dirpad.parse_path((path, score));
-    }
+    let input = include_str!("../../input1.txt");
 }
 
-#[test]
-fn test() {
-    let input = include_str!("../../input0.txt");
-    let nums = parse(input);
+#[cfg(test)]
+mod test {
+    use super::*;
 
-    assert_eq!(nums[0], 29);
-
-    let keypad = Keypad::default();
-    let path = keypad.find(29);
-
-    dbg!(path);
-
-    todo!();
+    #[rstest::rstest]
+    #[case("029A", 12)]
+    #[case("980A", 12)]
+    #[case("179A", 14)]
+    #[case("456A", 12)]
+    #[case("379A", 14)]
+    fn move_numpad(#[case] num: &str, #[case] move_len: usize) {
+        assert_eq!(NUMPAD.get_moves(num).len(), move_len);
+    }
 }

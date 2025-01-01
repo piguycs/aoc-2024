@@ -395,6 +395,7 @@ dependencies = [
  "glam",
  "itertools",
  "pathfinding",
+ "rstest",
 ]
 
 [[package]]
