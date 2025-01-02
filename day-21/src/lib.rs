@@ -1,8 +1,6 @@
 use glam::IVec2;
 use std::collections::HashMap;
 
-pub const DEPTH: usize = 3;
-
 #[derive(Debug, Clone, Copy)]
 #[allow(unused)]
 pub struct Key {
@@ -66,13 +64,13 @@ struct Solution {
 }
 
 impl Solution {
-    fn calculate_len(&mut self) -> HashMap<String, usize> {
+    fn calculate_len(&mut self, depth: usize) -> HashMap<String, usize> {
         let mut len_map = HashMap::new();
 
         let sources = ['>', 'v', '<', 'B', '^'];
         let targets = ['>', 'v', '<', 'B', '^'];
 
-        for level in 1..=DEPTH {
+        for level in 1..=depth {
             for source in sources {
                 for target in targets {
                     let key = Self::form_key(source, target, level as i32);
@@ -207,7 +205,9 @@ impl Solution {
     }
 }
 
-pub fn solve(data: Vec<&str>) -> usize {
+pub fn solve(data: Vec<&str>, depth: usize) -> usize {
+    let depth = depth + 1;
+
     let keypad = KeyPad::new();
 
     let mut graph = HashMap::new();
@@ -234,7 +234,7 @@ pub fn solve(data: Vec<&str>) -> usize {
         keypad_map: keypad.keys,
     };
 
-    let len_map = solution.calculate_len();
+    let len_map = solution.calculate_len(depth);
     let mut source = 'A';
     let mut total = 0;
 
@@ -251,7 +251,7 @@ pub fn solve(data: Vec<&str>) -> usize {
                 let mut source2 = 'B';
 
                 for target2 in move_seq.chars() {
-                    let key = Solution::form_key(source2, target2, (DEPTH - 1) as i32);
+                    let key = Solution::form_key(source2, target2, (depth - 1) as i32);
                     move_length += len_map.get(&key).expect("Key not found in length map");
                     source2 = target2;
                 }

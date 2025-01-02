@@ -1,3 +1,6 @@
+use day_21::*;
+
 fn main() {
-    todo!("part 2");
+    let ans = solve(include_str!("../../input1.txt").lines().collect(), 25);
+    println!("{}", ans);
 }
