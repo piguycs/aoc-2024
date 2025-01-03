@@ -64,7 +64,7 @@ struct Solution {
 }
 
 impl Solution {
-    fn calculate_len(&mut self, depth: usize) -> HashMap<String, usize> {
+    fn calculate_len(&mut self, depth: usize) -> HashMap<(char, char, i32), usize> {
         let mut len_map = HashMap::new();
 
         let sources = ['>', 'v', '<', 'B', '^'];
@@ -73,7 +73,7 @@ impl Solution {
         for level in 1..=depth {
             for source in sources {
                 for target in targets {
-                    let key = Self::form_key(source, target, level as i32);
+                    let key = (source, target, level as i32);
                     let moves = self.find_and_translate(source, target);
 
                     if level == 1 {
@@ -85,7 +85,7 @@ impl Solution {
                             let mut move_len = 0;
 
                             for target2 in m.chars() {
-                                let prev_key = Self::form_key(source2, target2, (level - 1) as i32);
+                                let prev_key = (source2, target2, level as i32 - 1);
                                 move_len += len_map.get(&prev_key).unwrap();
                                 source2 = target2;
                             }
@@ -199,10 +199,6 @@ impl Solution {
         current_path.pop();
         visited.insert(current, false);
     }
-
-    fn form_key(source: char, target: char, level: i32) -> String {
-        format!("{}{}{:02}", source, target, level)
-    }
 }
 
 pub fn solve(data: Vec<&str>, depth: usize) -> usize {
@@ -251,7 +247,7 @@ pub fn solve(data: Vec<&str>, depth: usize) -> usize {
                 let mut source2 = 'B';
 
                 for target2 in move_seq.chars() {
-                    let key = Solution::form_key(source2, target2, (depth - 1) as i32);
+                    let key = (source2, target2, depth as i32 - 1);
                     move_length += len_map.get(&key).expect("Key not found in length map");
                     source2 = target2;
                 }
