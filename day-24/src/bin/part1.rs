@@ -2,7 +2,8 @@ use day_24::Solver;
 
 fn main() {
     let mut solver = Solver::load(include_str!("../../input1.txt"));
-    println!("{}", solver.solve());
+    solver.solve();
+    println!("{}", solver.get_z());
 }
 
 #[cfg(test)]
@@ -12,6 +13,7 @@ mod test {
     #[test]
     fn part1() {
         let mut solver = Solver::load(include_str!("../../input0.txt"));
-        assert_eq!(solver.solve(), 2024);
+        solver.solve();
+        assert_eq!(solver.get_z(), 2024);
     }
 }
