@@ -1,4 +1,5 @@
 #![feature(let_chains)]
+pub mod edge;
 
 use std::collections::HashMap;
 

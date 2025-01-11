@@ -1,10 +1,12 @@
-use day_24::Solver;
+use day_24::*;
 
 fn main() {
-    let mut solver = Solver::load(include_str!("../../input1.txt"));
-    solver.solve();
+    //let mut solver = Solver::load(include_str!("../../input1.txt"));
+    //solver.solve();
 
-    println!("{}", solver.untangle());
+    //println!("{}", solver.untangle());
+    let a = edge::Asm::parse(include_str!("../../input1.txt"));
+    println!("{}", a.solve());
 }
 
 #[cfg(test)]
@@ -13,11 +15,8 @@ mod test {
 
     #[test]
     fn part2() {
-        let mut solver = Solver::load(include_str!("../../input0.txt"));
+        let mut solver = Solver::load(include_str!("../../input1.txt"));
         solver.solve();
-        assert_eq!(
-            solver.untangle(),
-            "mjb,tgd,wpb,z02,z03,z05,z06,z07,z08,z10,z11"
-        );
+        assert_eq!(solver.untangle(), "cqr,ncd,nfj,qnw,vkg,z15,z20,z37");
     }
 }
